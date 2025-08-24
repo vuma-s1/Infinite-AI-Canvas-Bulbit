@@ -1,0 +1,135 @@
+.editingToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: transparent;
+  overflow-x: auto;
+  min-height: 48px;
+  flex: 1;
+}
+
+.toolbarSection {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border-right: 1px solid #404040;
+  height: 32px;
+}
+
+.toolbarSection:last-child {
+  border-right: none;
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.toolbarBtn:hover {
+  background: #404040;
+  border-color: #606060;
+  color: #ffffff;
+}
+
+.toolbarBtn:active {
+  background: #505050;
+  transform: translateY(1px);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbarBtn:disabled:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.toolbarBtn.active {
+  background: #007acc;
+  border-color: #007acc;
+  color: #ffffff;
+}
+
+.zoomControl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoomSelect {
+  background: #404040;
+  border: 1px solid #606060;
+  border-radius: 4px;
+  color: #e0e0e0;
+  padding: 4px 8px;
+  font-size: 12px;
+  min-width: 60px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zoomSelect:hover {
+  border-color: #808080;
+}
+
+.zoomSelect:focus {
+  outline: none;
+  border-color: #007acc;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .editingToolbar {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  
+  .toolbarSection {
+    padding: 0 4px;
+    gap: 2px;
+  }
+  
+  .toolbarBtn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .zoomSelect {
+    min-width: 50px;
+    font-size: 11px;
+  }
+}
+
+/* Scrollbar styling for overflow */
+.editingToolbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.editingToolbar::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.editingToolbar::-webkit-scrollbar-thumb {
+  background: #606060;
+  border-radius: 2px;
+}
+
+.editingToolbar::-webkit-scrollbar-thumb:hover {
+  background: #808080;
+}

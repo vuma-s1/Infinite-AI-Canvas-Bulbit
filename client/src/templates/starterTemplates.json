@@ -1,0 +1,130 @@
+{
+  "colorExtractor": {
+    "name": "Color Extractor",
+    "description": "Extract and apply color palettes from images",
+    "nodes": [
+      {
+        "id": "image-upload-1",
+        "type": "imageUploadNode",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "label": "Source Image",
+          "imageUrl": null,
+          "isLoading": false
+        }
+      },
+      {
+        "id": "image-upload-2",
+        "type": "imageUploadNode",
+        "position": { "x": 100, "y": 400 },
+        "data": {
+          "label": "Target Image",
+          "imageUrl": null,
+          "isLoading": false
+        }
+      },
+      {
+        "id": "prompt-node",
+        "type": "promptNode",
+        "position": { "x": 350, "y": 300 },
+        "data": {
+          "prompt": "Apply the color palette from the first image to the second image, maintaining the original composition and style",
+          "isLoading": false
+        }
+      },
+      {
+        "id": "output-node",
+        "type": "imageOutputNode",
+        "position": { "x": 600, "y": 300 },
+        "data": {
+          "imageUrl": null,
+          "isLoading": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "image-upload-1",
+        "target": "prompt-node",
+        "type": "default"
+      },
+      {
+        "id": "edge-2",
+        "source": "image-upload-2",
+        "target": "prompt-node",
+        "type": "default"
+      },
+      {
+        "id": "edge-3",
+        "source": "prompt-node",
+        "target": "output-node",
+        "type": "default"
+      }
+    ]
+  },
+  "styleTransfer": {
+    "name": "Style Transfer",
+    "description": "Transfer artistic styles between images",
+    "nodes": [
+      {
+        "id": "content-image",
+        "type": "imageUploadNode",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "label": "Content Image",
+          "imageUrl": null,
+          "isLoading": false
+        }
+      },
+      {
+        "id": "style-image",
+        "type": "imageUploadNode",
+        "position": { "x": 100, "y": 400 },
+        "data": {
+          "label": "Style Image",
+          "imageUrl": null,
+          "isLoading": false
+        }
+      },
+      {
+        "id": "style-prompt",
+        "type": "promptNode",
+        "position": { "x": 350, "y": 300 },
+        "data": {
+          "prompt": "Apply the artistic style of the second image to the first image, creating a beautiful style transfer effect",
+          "isLoading": false
+        }
+      },
+      {
+        "id": "style-output",
+        "type": "imageOutputNode",
+        "position": { "x": 600, "y": 300 },
+        "data": {
+          "imageUrl": null,
+          "isLoading": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "style-edge-1",
+        "source": "content-image",
+        "target": "style-prompt",
+        "type": "default"
+      },
+      {
+        "id": "style-edge-2",
+        "source": "style-image",
+        "target": "style-prompt",
+        "type": "default"
+      },
+      {
+        "id": "style-edge-3",
+        "source": "style-prompt",
+        "target": "style-output",
+        "type": "default"
+      }
+    ]
+  }
+}
