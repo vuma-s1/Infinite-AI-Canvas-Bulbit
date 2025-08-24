@@ -15,10 +15,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { useWorkflowStore } from './store/workflowStore';
 import { useState } from 'react';
 import { 
-  FiZap, 
   FiSave, 
   FiUpload, 
-  FiHome, 
   FiRotateCcw, 
   FiRotateCw, 
   FiSearch,
@@ -52,9 +50,6 @@ import {
   FiGithub,
   FiSettings,
   FiSquare,
-  FiCircle,
-  FiTriangle,
-  FiDiamond,
   FiArrowRight,
   FiArrowLeft,
   FiArrowUp,

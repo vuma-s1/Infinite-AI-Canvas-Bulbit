@@ -1,16 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './TemplateDropdown.module.css';
-import { 
-  FiSquare, FiCircle, FiTriangle, FiDiamond, FiHexagon, FiOctagon,
-  FiArrowRight, FiArrowLeft, FiArrowUp, FiArrowDown, FiArrowUpRight,
-  FiMessageSquare, FiImage, FiFileText, FiDatabase, FiCpu, FiStar,
-  FiShield, FiHelpCircle, FiSettings, FiLayers, FiMove, FiAlignLeft,
-  FiAlignCenter, FiAlignRight, FiGrid, FiEye, FiMaximize2, FiMinimize2,
-  FiCopy, FiScissors, FiClipboard, FiRotateCcw, FiRotateCw, FiSearch,
-  FiEdit, FiZoomIn, FiZoomOut, FiFile, FiSave, FiFolder, FiDownload,
-  FiPrinter, FiInfo, FiBook, FiGithub, FiPackage, FiDroplet, FiZap
-} from 'react-icons/fi';
-import { MdPalette } from 'react-icons/md';
+import { FiZap } from 'react-icons/fi';
 
 interface TemplateDropdownProps {
   label: string;

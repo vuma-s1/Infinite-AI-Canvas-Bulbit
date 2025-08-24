@@ -47,10 +47,10 @@ const EditingToolbar: React.FC<EditingToolbarProps> = ({
   onShortcuts
 }) => {
   const { nodes, edges, setNodes, setEdges } = useWorkflowStore();
-  const [zoom, setZoom] = useState(100);
-  const [showGrid, setShowGrid] = useState(true);
-  const [showGuides, setShowGuides] = useState(true);
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [zoom] = useState(100);
+  const [showGrid] = useState(true);
+  const [showGuides] = useState(true);
+  const [isFullScreen] = useState(false);
 
   // Undo/Redo functionality
   const [history, setHistory] = useState<Array<{nodes: any[], edges: any[]}>>([]);
