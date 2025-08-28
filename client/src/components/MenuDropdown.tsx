@@ -6,7 +6,7 @@ import {
   FiZoomIn, FiZoomOut, FiGrid, FiEye, FiMaximize2, FiMinimize2,
   FiLayers, FiMove, FiAlignLeft, FiAlignCenter, FiAlignRight, FiAlignJustify,
   FiStar, FiShield, FiHelpCircle, FiInfo, FiBook, FiGithub,
-  FiSquare, FiCircle, FiTriangle, FiDiamond, FiHexagon, FiOctagon,
+  FiSquare, FiCircle, FiTriangle, FiHexagon, FiOctagon,
   FiArrowRight, FiArrowLeft, FiArrowUp, FiArrowDown, FiArrowUpRight,
   FiMessageSquare, FiImage, FiFileText, FiDatabase, FiCpu
 } from 'react-icons/fi';
@@ -47,12 +47,11 @@ const MenuDropdown: React.FC<MenuDropdownProps> = ({ label, items }) => {
         onClick={() => setIsOpen(!isOpen)}
       >
         {label}
-        <span className={`${styles.arrow} ${isOpen ? styles.arrowUp : ''}`}>▼</span>
       </button>
       
       {isOpen && (
         <div className={styles.dropdownMenu}>
-          <div className={styles.dropdownGrid}>
+          <div className={styles.dropdownList}>
             {items.map((item, index) => (
               <button
                 key={index}
@@ -60,7 +59,6 @@ const MenuDropdown: React.FC<MenuDropdownProps> = ({ label, items }) => {
                 onClick={() => handleItemClick(item.action)}
                 title={item.label}
               >
-                <span className={styles.itemIcon}>{item.icon}</span>
                 <span className={styles.itemLabel}>{item.label}</span>
               </button>
             ))}

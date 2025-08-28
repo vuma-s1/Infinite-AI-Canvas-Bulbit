@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useWorkflowStore } from '../store/workflowStore';
 import styles from './NodeToolbar.module.css';
 import TemplateDropdown from './TemplateDropdown';
-import GenerationSidebar from './GenerationSidebar';
 import { 
   FiUpload, 
   FiMessageSquare, 
@@ -55,28 +54,36 @@ import {
   FiInfo,
   FiBook,
   FiGithub,
-  FiShare
+  FiShare,
+  FiCloud,
+  FiUser,
+  FiMinus,
+  FiList
 } from 'react-icons/fi';
 import { MdPalette } from 'react-icons/md';
+import GenerationSidebar from './GenerationSidebar';
 
 interface NodeToolbarProps {
   onTemplateChange: (template: string | null) => void;
   onFreeTemplatesOpen: () => void;
+  onWorkflowSelect?: (workflowType: string) => void;
+  onCenterCanvasOpen?: (templateType: string) => void;
 }
 
-const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTemplatesOpen }) => {
+const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTemplatesOpen, onWorkflowSelect, onCenterCanvasOpen }) => {
   const { setNodes, setEdges } = useWorkflowStore();
   const [activeTemplate, setActiveTemplate] = React.useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [sidebarTemplateType, setSidebarTemplateType] = useState('');
+  const [isGenerationMode, setIsGenerationMode] = React.useState(false);
+  const [generationTemplateType, setGenerationTemplateType] = React.useState('');
 
   const handleGenerateClick = (templateType: string) => {
-    setSidebarTemplateType(templateType);
-    setIsSidebarOpen(true);
+    setGenerationTemplateType(templateType);
+    setIsGenerationMode(true);
   };
 
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
+  const handleBackToTemplates = () => {
+    setIsGenerationMode(false);
+    setGenerationTemplateType('');
   };
 
   // n8n-style node templates with red and black color scheme
@@ -143,8 +150,26 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
 
 
   const handleDragStart = (event: React.DragEvent, nodeType: string, label: string) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify({ type: nodeType, label }));
-    event.dataTransfer.effectAllowed = 'move';
+    const dragData = {
+      type: nodeType,
+      label: label,
+      shape: nodeType
+    };
+    
+    // Set ReactFlow data for canvas compatibility
+    event.dataTransfer.setData('application/reactflow', JSON.stringify(dragData));
+    
+    // Set custom data for center canvas
+    event.dataTransfer.setData('application/custom', JSON.stringify({
+      type: 'shape',
+      shape: nodeType,
+      label: label
+    }));
+    
+    // Set text data as fallback
+    event.dataTransfer.setData('text/plain', label);
+    
+    event.dataTransfer.effectAllowed = 'copy';
   };
 
   const clearActiveTemplate = () => {
@@ -172,16 +197,13 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
     setActiveTemplate('Basic Generation');
     onTemplateChange('Basic Generation');
     
-    const nodes = [
-      {
-        id: 'prompt-1',
-        type: 'promptNode',
-        position: { x: 1200, y: 100 },
-        data: { label: 'Text Prompt', prompt: 'A beautiful landscape with mountains and a lake at sunset' }
-      }
-    ];
-
-    setNodes(nodes);
+    // Trigger workflow selection in canvas
+    if (onWorkflowSelect) {
+      onWorkflowSelect('basicGeneration');
+    }
+    
+    // Clear existing nodes and edges
+    setNodes([]);
     setEdges([]);
   };
 
@@ -433,6 +455,11 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
     setActiveTemplate('Asset Generator');
     onTemplateChange('Asset Generator');
     
+    // Trigger workflow selection in canvas
+    if (onWorkflowSelect) {
+      onWorkflowSelect('assetGenerator');
+    }
+    
     const nodes = [
       // Main branding source at top center
       {
@@ -539,14 +566,14 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
       icon: <FiTriangle />, 
       label: 'Triangle', 
       action: () => console.log('Add triangle'),
-      nodeType: 'rectangleNode',
+      nodeType: 'triangleNode',
       data: { width: 80, height: 80, strokeWidth: 2 }
     },
     { 
       icon: <FiHexagon />, 
       label: 'Hexagon', 
       action: () => console.log('Add hexagon'),
-      nodeType: 'rectangleNode',
+      nodeType: 'hexagonNode',
       data: { width: 90, height: 90, strokeWidth: 2 }
     },
     { 
@@ -567,14 +594,14 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
       icon: <FiArrowRight />, 
       label: 'Arrow', 
       action: () => console.log('Add arrow'),
-      nodeType: 'rectangleNode',
+      nodeType: 'arrowNode',
       data: { width: 120, height: 20, strokeWidth: 2 }
     },
     { 
       icon: <FiFileText />, 
       label: 'Document', 
       action: () => console.log('Add document'),
-      nodeType: 'textNode',
+      nodeType: 'documentNode',
       data: { text: 'Document', fontSize: 14, fontColor: '#ffffff', fontFamily: 'Arial', fontWeight: 'bold' }
     },
   ];
@@ -636,16 +663,16 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
 
   return (
     <div className={styles.sidebar}>
-      {/* Header */}
-      <div className={styles.sidebarHeader}>
-        <h2 className={styles.sidebarTitle}>Workflow Nodes</h2>
-        <p className={styles.sidebarSubtitle}>Drag nodes to build your AI workflow</p>
-      </div>
-
-
-
-      {/* Quick Templates */}
-      <div className={styles.templatesSection}>
+      {isGenerationMode ? (
+        <GenerationSidebar
+          isOpen={true}
+          onClose={handleBackToTemplates}
+          templateType={generationTemplateType}
+        />
+      ) : (
+        <>
+          {/* Quick Templates */}
+          <div className={styles.templatesSection}>
         <h3 className={styles.sectionTitle}>Quick Templates</h3>
         <div className={styles.templateButtons}>
           <TemplateDropdown
@@ -655,6 +682,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={basicGenerationItems}
             onTemplateLoad={loadBasicTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Text-to-Image')}
           />
           
           <TemplateDropdown
@@ -664,6 +692,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={styleTransferItems}
             onTemplateLoad={loadStyleTransferTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Style Transfer')}
           />
           
           <TemplateDropdown
@@ -673,6 +702,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={sampleGenerationItems}
             onTemplateLoad={loadSampleGenerationTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Sample Generation')}
           />
           
           <TemplateDropdown
@@ -682,6 +712,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={colorExtractionItems}
             onTemplateLoad={loadColorExtractionTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Color Extractor')}
           />
           
           <TemplateDropdown
@@ -691,6 +722,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={moodboardItems}
             onTemplateLoad={loadMoodboardTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Moodboard Generator')}
           />
           
           <TemplateDropdown
@@ -700,6 +732,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             items={assetGeneratorItems}
             onTemplateLoad={loadAssetGenerationTemplate}
             onGenerateClick={handleGenerateClick}
+            onCenterCanvasClick={() => onCenterCanvasOpen?.('Asset Generator')}
           />
           
           <button 
@@ -912,36 +945,8 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
           </button>
         </div>
       </div>
-
-      {/* Help Section */}
-      <div className={styles.helpSection}>
-        <h3 className={styles.sectionTitle}>How to Use</h3>
-        <div className={styles.helpSteps}>
-          <div className={styles.helpStep}>
-            <span className={styles.stepNumber}>1</span>
-            <span className={styles.stepText}>Drag nodes from the sidebar to the canvas</span>
-          </div>
-          <div className={styles.helpStep}>
-            <span className={styles.stepNumber}>2</span>
-            <span className={styles.stepText}>Connect nodes by dragging from handles</span>
-          </div>
-          <div className={styles.helpStep}>
-            <span className={styles.stepNumber}>3</span>
-            <span className={styles.stepText}>Configure nodes with your data</span>
-          </div>
-          <div className={styles.helpStep}>
-            <span className={styles.stepNumber}>4</span>
-            <span className={styles.stepText}>Click Execute to run your workflow</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Generation Sidebar */}
-      <GenerationSidebar
-        isOpen={isSidebarOpen}
-        onClose={handleCloseSidebar}
-        templateType={sidebarTemplateType}
-      />
+        </>
+      )}
     </div>
   );
 };

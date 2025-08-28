@@ -10,6 +10,7 @@ interface ColorExtractorNodeData {
   colorReferenceUrl?: string;
   objectReferenceUrl?: string;
   extractedPalette?: string[];
+  allPalettes?: string[][];
   colorMapping?: Record<string, string>;
   isLoading?: boolean;
   error?: string;

@@ -26,7 +26,8 @@ import {
   FiEye,
   FiEyeOff,
   FiHome,
-  FiZap
+  FiZap,
+  FiFileText
 } from 'react-icons/fi';
 
 interface EditingToolbarProps {
@@ -47,10 +48,10 @@ const EditingToolbar: React.FC<EditingToolbarProps> = ({
   onShortcuts
 }) => {
   const { nodes, edges, setNodes, setEdges } = useWorkflowStore();
-  const [zoom] = useState(100);
-  const [showGrid] = useState(true);
-  const [showGuides] = useState(true);
-  const [isFullScreen] = useState(false);
+  const [zoom, setZoom] = useState(100);
+  const [showGrid, setShowGrid] = useState(true);
+  const [showGuides, setShowGuides] = useState(true);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   // Undo/Redo functionality
   const [history, setHistory] = useState<Array<{nodes: any[], edges: any[]}>>([]);
@@ -207,6 +208,26 @@ const EditingToolbar: React.FC<EditingToolbarProps> = ({
 
   return (
     <div className={styles.editingToolbar}>
+      {/* Zoom Level Dropdown - Left Side */}
+      <div className={styles.toolbarSection}>
+        <div className={styles.zoomLevelControl}>
+          <FiFileText className={styles.documentIcon} />
+          <select 
+            className={styles.zoomLevelSelect}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+          >
+            <option value={25}>25%</option>
+            <option value={50}>50%</option>
+            <option value={75}>75%</option>
+            <option value={100}>100%</option>
+            <option value={125}>125%</option>
+            <option value={150}>150%</option>
+            <option value={200}>200%</option>
+          </select>
+        </div>
+      </div>
+
       {/* Edit Operations - Left Side */}
       <div className={styles.toolbarSection}>
         <button 
@@ -229,38 +250,7 @@ const EditingToolbar: React.FC<EditingToolbarProps> = ({
 
 
 
-      {/* Zoom Controls */}
-      <div className={styles.toolbarSection}>
-        <div className={styles.zoomControl}>
-          <button 
-            className={styles.toolbarBtn}
-            onClick={zoomOut}
-            title="Zoom Out (Ctrl+-)"
-          >
-            <FiZoomOut />
-          </button>
-          <select 
-            className={styles.zoomSelect}
-            value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
-          >
-            <option value={25}>25%</option>
-            <option value={50}>50%</option>
-            <option value={75}>75%</option>
-            <option value={100}>100%</option>
-            <option value={125}>125%</option>
-            <option value={150}>150%</option>
-            <option value={200}>200%</option>
-          </select>
-          <button 
-            className={styles.toolbarBtn}
-            onClick={zoomIn}
-            title="Zoom In (Ctrl+=)"
-          >
-            <FiZoomIn />
-          </button>
-        </div>
-      </div>
+
 
 
 

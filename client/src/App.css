@@ -33,44 +33,80 @@ body {
 
 /* Header */
 .app-header {
-  background: rgba(26, 26, 26, 0.95);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(45, 45, 45, 0.95) 100%);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 107, 107, 0.3);
-  padding: 12px 24px;
-  height: 70px;
-  display: flex;
-  align-items: center;
+  border-bottom: 2px solid rgba(255, 107, 107, 0.4);
   z-index: 100;
   min-width: 0;
+  box-shadow: 0 2px 20px rgba(255, 107, 107, 0.1);
 }
 
-.header-content {
+/* Top Row - Header */
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  min-width: 0;
-  gap: 20px;
+  padding: 6px 24px;
+  border-bottom: 1px solid rgba(255, 107, 107, 0.2);
 }
 
-.logo-section {
+.header-left {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  min-width: 0;
-  flex-shrink: 0;
-  padding: 0;
-  margin-top: 0;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
 }
+
+.app-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Bottom Row - Toolbar */
+.header-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 24px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+
+
+
 
 .logo {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-width: 0;
   background: transparent !important;
@@ -80,11 +116,12 @@ body {
   margin: 0;
   box-shadow: none !important;
   outline: none !important;
+  height: auto;
 }
 
 .logo-image {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   background-color: transparent !important;
   border: none !important;
@@ -94,6 +131,14 @@ body {
   object-fit: contain;
   box-shadow: none !important;
   outline: none !important;
+  filter: brightness(0) invert(1);
+  transition: all 0.3s ease;
+  vertical-align: middle;
+}
+
+.logo-image:hover {
+  filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(340deg);
+  transform: scale(1.1);
 }
 
 .logo-text {
@@ -135,31 +180,32 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-left: 32px;
+  margin-left: 16px;
+  height: 100%;
+  padding-bottom: 0;
+  padding-top: 0;
 }
 
 .menu-item {
   color: #ffffff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   cursor: pointer;
-  padding: 8px 4px;
+  padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
   user-select: none;
+  display: flex;
+  align-items: center;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 107, 107, 0.1);
+  color: rgba(255, 107, 107, 1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
+
 
 .header-btn {
   display: flex;
@@ -181,6 +227,9 @@ body {
 .header-btn:hover {
   color: rgba(255, 107, 107, 1);
   transform: translateY(-1px);
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 6px;
 }
 
 .header-btn.secondary {
@@ -204,15 +253,19 @@ body {
   min-height: 0;
 }
 
-/* Sidebar */
+/* Left Sidebar */
 .app-sidebar {
   width: 320px;
   background: rgba(26, 26, 26, 0.95);
-  border-right: 1px solid rgba(255, 107, 107, 0.3);
+  border-right: 2px solid rgba(255, 107, 107, 0.4);
   backdrop-filter: blur(20px);
   overflow-y: auto;
-  z-index: 50;
+  z-index: 1000;
+  box-shadow: 2px 0 20px rgba(255, 107, 107, 0.1);
+  flex-shrink: 0;
 }
+
+
 
 /* Canvas Area */
 .app-canvas {
@@ -311,6 +364,12 @@ body {
   .header-btn {
     padding: 6px 12px;
     font-size: 13px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .app-sidebar {
+    width: 280px;
   }
 }
 
@@ -612,6 +671,10 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-sidebar {
+    width: 280px;
+  }
+  
+  .app-sidebar-right {
     width: 280px;
   }
   

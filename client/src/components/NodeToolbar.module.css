@@ -8,6 +8,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
+  z-index: 1000;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar::before {
@@ -50,7 +52,8 @@
   padding: 20px;
   border-bottom: 1px solid rgba(255, 107, 107, 0.2);
   position: relative;
-  z-index: 1;
+  z-index: 1001;
+  background: rgba(26, 26, 26, 0.95);
 }
 
 .sectionTitle {
@@ -123,8 +126,10 @@
 .nodesSection {
   flex: 1;
   padding: 20px;
+  border-bottom: 1px solid rgba(255, 107, 107, 0.2);
   position: relative;
-  z-index: 1;
+  z-index: 1001;
+  background: rgba(26, 26, 26, 0.95);
   overflow-y: auto;
 }
 
@@ -245,26 +250,28 @@
 
 .nodeButtons {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
 }
 
 .nodeBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
+  gap: 2px;
+  padding: 6px 4px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 4px;
   color: #ffffff;
   cursor: grab;
   transition: all 0.2s ease;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
-  min-height: 60px;
+  min-height: 40px;
   justify-content: center;
+  position: relative;
+  z-index: 1002;
 }
 
 .nodeBtn:hover {
@@ -280,7 +287,7 @@
 }
 
 .nodeBtn svg {
-  font-size: 18px;
+  font-size: 14px;
   color: #ff6b6b;
 }
 

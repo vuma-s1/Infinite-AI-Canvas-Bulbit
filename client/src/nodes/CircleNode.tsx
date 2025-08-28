@@ -98,7 +98,7 @@ const CircleNode: React.FC<NodeProps<CircleData>> = ({ data, selected, id }) => 
            width: diameter,
            height: diameter,
            backgroundColor: 'transparent',
-           border: `${data.strokeWidth || 2}px solid #ffffff`,
+           border: `1px solid #ffffff`,
            borderRadius: '50%',
            display: 'flex',
            alignItems: 'center',

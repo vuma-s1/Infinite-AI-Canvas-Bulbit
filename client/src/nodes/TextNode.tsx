@@ -83,8 +83,8 @@ const TextNode: React.FC<NodeProps<TextData>> = ({ data, selected, id }) => {
         style={{
           padding: '8px 12px',
           backgroundColor: 'transparent',
-          border: selected ? '2px dashed #ff6b6b' : '2px solid transparent',
-          borderRadius: '4px',
+          border: selected ? '1px dashed #ffffff' : '1px solid transparent',
+          borderRadius: '0px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

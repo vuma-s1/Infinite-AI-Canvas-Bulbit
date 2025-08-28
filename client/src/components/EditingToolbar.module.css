@@ -1,12 +1,13 @@
 .editingToolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
+  gap: 16px;
+  padding: 0;
   background: transparent;
   overflow-x: auto;
-  min-height: 48px;
+  min-height: 40px;
   flex: 1;
+  justify-content: flex-start;
 }
 
 .toolbarSection {
@@ -14,8 +15,8 @@
   align-items: center;
   gap: 4px;
   padding: 0 8px;
-  border-right: 1px solid #404040;
-  height: 32px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  height: 40px;
 }
 
 .toolbarSection:last-child {
@@ -26,21 +27,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
   color: #e0e0e0;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .toolbarBtn:hover {
-  background: #404040;
-  border-color: #606060;
-  color: #ffffff;
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.5);
+  color: rgba(255, 107, 107, 1);
 }
 
 .toolbarBtn:active {
@@ -59,9 +60,9 @@
 }
 
 .toolbarBtn.active {
-  background: #007acc;
-  border-color: #007acc;
-  color: #ffffff;
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.8);
+  color: rgba(255, 107, 107, 1);
 }
 
 .zoomControl {
@@ -88,8 +89,47 @@
 
 .zoomSelect:focus {
   outline: none;
-  border-color: #007acc;
-  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+  border-color: rgba(255, 107, 107, 0.8);
+  box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+}
+
+.zoomLevelControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.documentIcon {
+  color: #e0e0e0;
+  font-size: 16px;
+}
+
+.zoomLevelSelect {
+  background: transparent;
+  border: none;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.zoomLevelSelect:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.zoomLevelSelect:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.zoomLevelSelect option {
+  background: #404040;
+  color: #e0e0e0;
 }
 
 /* Responsive design */

@@ -12,6 +12,7 @@ import FreeTemplatesModal from './components/FreeTemplatesModal';
 import Toast from './components/Toast';
 import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import ErrorBoundary from './components/ErrorBoundary';
+import CenterCanvas from './components/CenterCanvas';
 import { useWorkflowStore } from './store/workflowStore';
 import { useState } from 'react';
 import { 
@@ -56,22 +57,40 @@ import {
   FiArrowDown,
   FiFileText,
   FiDatabase,
-  FiCpu
+  FiCpu,
+  FiShare
 } from 'react-icons/fi';
 import { MdPalette } from 'react-icons/md';
 
 function App() {
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
+  const [activeWorkflow, setActiveWorkflow] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isFreeTemplatesOpen, setIsFreeTemplatesOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
   const [toasts, setToasts] = useState<Array<{id: string; type: 'success' | 'error' | 'info'; message: string}>>([]);
+  const [centerCanvasVisible, setCenterCanvasVisible] = useState(false);
+  const [centerCanvasTemplate, setCenterCanvasTemplate] = useState<string | null>(null);
   
   const handleGetStarted = () => {
     setShowDashboard(true);
     // Load saved workflow when entering dashboard
     useWorkflowStore.getState().loadWorkflow();
+  };
+
+  const handleCenterCanvasOpen = (templateType: string) => {
+    setCenterCanvasTemplate(templateType);
+    setCenterCanvasVisible(true);
+  };
+
+  const handleCenterCanvasClose = () => {
+    setCenterCanvasVisible(false);
+    setCenterCanvasTemplate(null);
+  };
+
+  const handleWorkflowSelect = (workflowType: string) => {
+    setActiveWorkflow(workflowType);
   };
 
   const addToast = (type: 'success' | 'error' | 'info', message: string) => {
@@ -293,16 +312,18 @@ function App() {
     <div className="app">
       {/* Unified Navigation Bar */}
       <header className="app-header">
-        <div className="header-content">
-          <div className="logo-section">
+        {/* Top Row - Header */}
+        <div className="header-top">
+          <div className="header-left">
             <div className="logo">
               <img 
                 src="/Icon black.png" 
                 alt="Bulbit AI Logo" 
                 className="logo-image"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
-            
+            <h1 className="app-title">Bulbit AI Workflow Builder</h1>
             <div className="menu-bar">
               <MenuDropdown label="File" items={fileMenuItems} />
               <MenuDropdown label="Edit" items={editMenuItems} />
@@ -312,7 +333,16 @@ function App() {
               <MenuDropdown label="Help" items={helpMenuItems} />
             </div>
           </div>
-          
+          <div className="header-right">
+            <button className="share-btn">
+              <FiShare />
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Bottom Row - Toolbar */}
+        <div className="header-toolbar">
           <EditingToolbar
             onSave={handleSave}
             onExport={handleExport}
@@ -326,35 +356,29 @@ function App() {
 
       {/* Main Content */}
       <div className="app-main">
-        {/* Sidebar */}
+        {/* Left Sidebar */}
         <aside className="app-sidebar">
           <NodeToolbar 
             onTemplateChange={setActiveTemplate} 
             onFreeTemplatesOpen={() => setIsFreeTemplatesOpen(true)}
+            onWorkflowSelect={handleWorkflowSelect}
+            onCenterCanvasOpen={handleCenterCanvasOpen}
           />
         </aside>
 
         {/* Canvas Area */}
         <main className="app-canvas">
-          <div className="canvas-title-area">
-            <h2 className="canvas-title">
-              {activeTemplate ? activeTemplate : 'Visual AI Workflow Builder'}
-            </h2>
-            <p className="canvas-subtitle">
-              {activeTemplate ? 'Active Workflow Template' : 'Create and execute AI-powered workflows'}
-            </p>
-            {activeTemplate && (
-              <button 
-                className="clear-template-btn"
-                onClick={() => setActiveTemplate(null)}
-                title="Clear active template"
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <BulbitCanvas />
+          <BulbitCanvas activeWorkflow={activeWorkflow} />
+          
+          {/* Center Canvas Overlay */}
+          <CenterCanvas
+            isVisible={centerCanvasVisible}
+            templateType={centerCanvasTemplate}
+            onClose={handleCenterCanvasClose}
+          />
         </main>
+
+
       </div>
       
       {/* Keyboard Shortcuts */}

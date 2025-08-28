@@ -24,6 +24,8 @@ import RectangleNode from '../nodes/RectangleNode';
 import CircleNode from '../nodes/CircleNode';
 import TextNode from '../nodes/TextNode';
 import CanvasToolbar from './CanvasToolbar';
+import AssetGeneratorWorkflow from './AssetGeneratorWorkflow';
+import BasicGenerationWorkflow from './BasicGenerationWorkflow';
 import { FiUpload, FiMessageSquare, FiImage, FiDroplet, FiPackage, FiClipboard } from 'react-icons/fi';
 import { MdPalette } from 'react-icons/md';
 
@@ -41,11 +43,23 @@ const nodeTypes: NodeTypes = {
   textNode: TextNode,
 };
 
-const BulbitCanvas: React.FC = () => {
-  const { nodes, edges, setNodes, setEdges } = useWorkflowStore();
+interface BulbitCanvasProps {
+  activeWorkflow?: string | null;
+}
+
+const BulbitCanvas: React.FC<BulbitCanvasProps> = ({ activeWorkflow }) => {
+  const { nodes, edges, setNodes, setEdges, startAutoSave, stopAutoSave } = useWorkflowStore();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = React.useState<ReactFlowInstance | null>(null);
   const [hasStartedEditing, setHasStartedEditing] = useState(false);
+
+  // Initialize auto-save on component mount
+  React.useEffect(() => {
+    startAutoSave();
+    return () => {
+      stopAutoSave();
+    };
+  }, [startAutoSave, stopAutoSave]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -54,8 +68,8 @@ const BulbitCanvas: React.FC = () => {
           ...params,
           id: `edge-${Date.now()}`,
           type: 'default',
-          style: { stroke: '#ff6b6b', strokeWidth: 2 },
-          animated: true,
+          style: { stroke: '#ffffff', strokeWidth: 1 },
+          animated: false,
           source: params.source,
           target: params.target,
         };
@@ -108,6 +122,11 @@ const BulbitCanvas: React.FC = () => {
   const onInit = useCallback((instance: ReactFlowInstance) => {
     setReactFlowInstance(instance);
   }, []);
+
+  const handleGenerate = () => {
+    console.log('Generate workflow:', activeWorkflow);
+    // Handle generation logic here
+  };
 
   // Empty state component
   const EmptyState = () => (
@@ -217,18 +236,24 @@ const BulbitCanvas: React.FC = () => {
 
   return (
     <div className="canvas-container" ref={reactFlowWrapper} style={{ 
-      background: '#1a1a1a',
+      background: '#0a0a0a',
       backgroundImage: `
-        linear-gradient(rgba(128, 128, 128, 0.3) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(128, 128, 128, 0.3) 1px, transparent 1px)
+        linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
       `,
-      backgroundSize: '25px 25px',
+      backgroundSize: '20px 20px',
       width: '100%', 
       height: '100%', 
       position: 'relative' 
     }}>
       <CanvasToolbar />
-      <ReactFlowProvider>
+      
+      {activeWorkflow === 'assetGenerator' ? (
+        <AssetGeneratorWorkflow onGenerate={handleGenerate} />
+      ) : activeWorkflow === 'basicGeneration' ? (
+        <BasicGenerationWorkflow onGenerate={handleGenerate} />
+      ) : (
+        <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -264,8 +289,8 @@ const BulbitCanvas: React.FC = () => {
           fitViewOptions={{ padding: 0.2 }}
           defaultEdgeOptions={{
             type: 'default',
-            style: { stroke: '#ff6b6b', strokeWidth: 2 },
-            animated: true,
+            style: { stroke: '#ffffff', strokeWidth: 1 },
+            animated: false,
           }}
           attributionPosition="bottom-left"
         >
@@ -288,6 +313,7 @@ const BulbitCanvas: React.FC = () => {
         </ReactFlow>
         {nodes.length === 0 && !hasStartedEditing && <EmptyState />}
       </ReactFlowProvider>
+      )}
     </div>
   );
 };
