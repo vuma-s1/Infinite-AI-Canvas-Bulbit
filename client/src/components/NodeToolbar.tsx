@@ -230,27 +230,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
     setEdges([]);
   };
 
-  const loadSampleGenerationTemplate = () => {
-    setActiveTemplate('Sample Generation');
-    onTemplateChange('Sample Generation');
-    
-    const nodes = [
-      {
-        id: 'prompt-1',
-        type: 'promptNode',
-        position: { x: 1200, y: 100 },
-        data: { 
-          label: 'Text Prompt', 
-          prompt: 'A cute cat sitting in a garden with colorful flowers',
-          isGenerating: false,
-          showSamples: false
-        }
-      }
-    ];
 
-    setNodes(nodes);
-    setEdges([]);
-  };
 
   const loadColorExtractionTemplate = () => {
     setActiveTemplate('Color Extraction');
@@ -617,16 +597,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
     { icon: <FiSave />, label: 'Save', action: () => console.log('Save style') },
   ];
 
-  const sampleGenerationItems = [
-    { icon: <FiImage />, label: 'Sample', action: () => console.log('Load sample') },
-    { icon: <FiFile />, label: 'Template', action: () => console.log('Use template') },
-    { icon: <FiCopy />, label: 'Copy', action: () => console.log('Copy sample') },
-    { icon: <FiEdit />, label: 'Edit', action: () => console.log('Edit sample') },
-    { icon: <FiSearch />, label: 'Search', action: () => console.log('Search samples') },
-    { icon: <FiDownload />, label: 'Download', action: () => console.log('Download sample') },
-    { icon: <FiShare />, label: 'Share', action: () => console.log('Share sample') },
-    { icon: <FiStar />, label: 'Favorite', action: () => console.log('Add to favorites') },
-  ];
+
 
   const colorExtractionItems = [
     { icon: <FiDroplet />, label: 'Extract', action: () => console.log('Extract colors') },
@@ -695,15 +666,7 @@ const NodeToolbar: React.FC<NodeToolbarProps> = ({ onTemplateChange, onFreeTempl
             onCenterCanvasClick={() => onCenterCanvasOpen?.('Style Transfer')}
           />
           
-          <TemplateDropdown
-            label="Sample Generation"
-            description="Try sample prompts with mock images"
-            icon={<FiImage />}
-            items={sampleGenerationItems}
-            onTemplateLoad={loadSampleGenerationTemplate}
-            onGenerateClick={handleGenerateClick}
-            onCenterCanvasClick={() => onCenterCanvasOpen?.('Sample Generation')}
-          />
+
           
           <TemplateDropdown
             label="Color Extraction"

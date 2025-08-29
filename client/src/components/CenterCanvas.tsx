@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkflowStore } from '../store/workflowStore';
-import { FiUpload, FiMessageSquare, FiImage, FiZap, FiX, FiType, FiGrid, FiLayers, FiBox, FiFileText } from 'react-icons/fi';
+import { FiUpload, FiMessageSquare, FiImage, FiZap, FiX, FiType, FiGrid, FiLayers, FiBox, FiFileText, FiEye, FiSave } from 'react-icons/fi';
 import { MdPalette } from 'react-icons/md';
 import styles from './CenterCanvas.module.css';
 
@@ -23,7 +23,17 @@ interface CenterCanvasProps {
 const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, onClose }) => {
   const [centerBoxes, setCenterBoxes] = useState<CenterBox[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { updateNodeData } = useWorkflowStore();
+  const [savedProjects, setSavedProjects] = useState<any[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [styleTransferPrompts, setStyleTransferPrompts] = useState<{
+    stylePrompt?: string;
+    contentPrompt?: string;
+  }>({});
+  const [colorExtractorPrompts, setColorExtractorPrompts] = useState<{
+    colorPrompt?: string;
+    objectPrompt?: string;
+  }>({});
+  const { updateNodeData, setCenterCanvasOpen } = useWorkflowStore();
 
   // Initialize center boxes based on template type
   useEffect(() => {
@@ -32,6 +42,14 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
       setCenterBoxes(boxes);
     }
   }, [templateType, isVisible]);
+
+  // Set global state when CenterCanvas opens/closes
+  useEffect(() => {
+    setCenterCanvasOpen(isVisible);
+    return () => {
+      setCenterCanvasOpen(false);
+    };
+  }, [isVisible, setCenterCanvasOpen]);
 
   const getCenterBoxesForTemplate = (template: string): CenterBox[] => {
     switch (template) {
@@ -119,54 +137,7 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
           }
         ];
 
-      case 'Sample Generation':
-        return [
-          {
-            id: 'initial-image',
-            type: 'upload',
-            title: 'Initial Image',
-            placeholder: 'Upload initial image',
-            value: '',
-            icon: <FiUpload />,
-            isActive: true
-          },
-          {
-            id: 'color-input',
-            type: 'upload',
-            title: 'Color Input',
-            placeholder: 'Upload color or enter hex code',
-            value: '',
-            icon: <MdPalette />,
-            isActive: true
-          },
-          {
-            id: 'command-input',
-            type: 'prompt',
-            title: 'Transformation Command',
-            placeholder: 'Enter transformation command (e.g., "Change color to blue")',
-            value: '',
-            icon: <FiMessageSquare />,
-            isActive: true
-          },
-          {
-            id: 'transformed-image',
-            type: 'output',
-            title: 'Transformed Image',
-            placeholder: 'Transformed image will appear here',
-            value: '',
-            icon: <FiImage />,
-            isActive: false
-          },
-          {
-            id: 'prompt-generator',
-            type: 'output',
-            title: 'Generated Prompt',
-            placeholder: 'Detailed prompt will be generated here',
-            value: '',
-            icon: <FiFileText />,
-            isActive: false
-          }
-        ];
+
 
       case 'Image Enhancer':
         return [
@@ -371,6 +342,15 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
       // Apply AI positioning and styling to uploaded images
       const processedImageUrl = applyAIPositioning(imageUrl);
       handleBoxValueChange(boxId, processedImageUrl);
+      
+      // Auto-trigger generation for specific templates when images are uploaded
+      if (templateType === 'Color Extractor' && boxId === 'color-reference') {
+        setTimeout(() => handleGenerate(), 500);
+      } else if (templateType === 'Asset Generator' && boxId === 'universal-branding') {
+        setTimeout(() => handleGenerate(), 500);
+      } else if (templateType === 'Text-to-Image' && boxId === 'text-prompt') {
+        setTimeout(() => handleGenerate(), 500);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -585,14 +565,21 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
       // Simulate AI generation process
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Update output box with generated result
-      const outputBox = centerBoxes.find(box => box.type === 'output');
-      if (outputBox) {
-        handleBoxValueChange(outputBox.id, 'Generated result placeholder');
+      // Generate different results based on template type
+      if (templateType === 'Color Extractor') {
+        await handleColorExtraction();
+      } else if (templateType === 'Asset Generator') {
+        await handleAssetGeneration();
+      } else if (templateType === 'Text-to-Image') {
+        await handleBasicGeneration();
+      } else {
+        // Default generation
+        const outputBox = centerBoxes.find(box => box.type === 'output');
+        if (outputBox) {
+          handleBoxValueChange(outputBox.id, 'Generated result placeholder');
+        }
       }
       
-      // Add toast notification
-      // You can integrate with your existing toast system here
       console.log('Generation completed!');
       
     } catch (error) {
@@ -600,6 +587,156 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleColorExtraction = async () => {
+    // Find the color reference image
+    const colorRefBox = centerBoxes.find(box => box.id === 'color-reference');
+    const objectRefBox = centerBoxes.find(box => box.id === 'object-reference');
+    const finalBox = centerBoxes.find(box => box.id === 'final-color-image');
+    
+    if (colorRefBox && finalBox) {
+      // Generate sample color extraction results
+      const extractedColors = [
+        { name: 'Crimson Red', code: '#DC143C' },
+        { name: 'Deep Blue', code: '#00008B' },
+        { name: 'Forest Green', code: '#228B22' },
+        { name: 'Golden Yellow', code: '#FFD700' },
+        { name: 'Purple Haze', code: '#8A2BE2' }
+      ];
+      
+      // Create a color palette image
+      const colorPaletteUrl = generateColorPaletteImage(extractedColors);
+      handleBoxValueChange(finalBox.id, colorPaletteUrl);
+    }
+  };
+
+  const handleAssetGeneration = async () => {
+    // Find the universal branding image and final output boxes
+    const universalBox = centerBoxes.find(box => box.id === 'universal-branding');
+    const finalBoxes = centerBoxes.filter(box => box.id.startsWith('final-'));
+    
+    if (universalBox && finalBoxes.length > 0) {
+      // Generate sample asset images
+      const assetImages = [
+        'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop'
+      ];
+      
+      finalBoxes.forEach((box, index) => {
+        if (index < assetImages.length) {
+          handleBoxValueChange(box.id, assetImages[index]);
+        }
+      });
+    }
+  };
+
+  const handleBasicGeneration = async () => {
+    // Find the text prompt and output image boxes
+    const promptBox = centerBoxes.find(box => box.id === 'text-prompt');
+    const outputBox = centerBoxes.find(box => box.id === 'output-image');
+    
+    if (promptBox && outputBox) {
+      // Generate sample image based on prompt
+      const sampleImages = [
+        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=300&fit=crop'
+      ];
+      
+      const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+      handleBoxValueChange(outputBox.id, randomImage);
+    }
+  };
+
+  const handleImageClick = (imageUrl: string) => {
+    // Create a modal or open in new tab to show full image
+    const newWindow = window.open(imageUrl, '_blank');
+    if (!newWindow) {
+      // Fallback: create a modal
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+      `;
+      
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      `;
+      
+      modal.appendChild(img);
+      document.body.appendChild(modal);
+      
+      modal.onclick = () => {
+        document.body.removeChild(modal);
+      };
+    }
+  };
+
+  const generateColorPaletteImage = (colors: Array<{name: string, code: string}>) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+    
+    canvas.width = 300;
+    canvas.height = 200;
+    
+    // Set background
+    ctx.fillStyle = '#2a2a2a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw color swatches
+    const swatchWidth = canvas.width / colors.length;
+    const swatchHeight = 80;
+    const startY = 60;
+    
+    colors.forEach((color, index) => {
+      const x = index * swatchWidth;
+      
+      // Draw color swatch
+      ctx.fillStyle = color.code;
+      ctx.fillRect(x, startY, swatchWidth, swatchHeight);
+      
+      // Draw border
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, startY, swatchWidth, swatchHeight);
+      
+      // Draw color name
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(color.name, x + swatchWidth/2, startY + swatchHeight + 20);
+      
+      // Draw color code
+      ctx.fillStyle = '#cccccc';
+      ctx.font = '10px Arial';
+      ctx.fillText(color.code, x + swatchWidth/2, startY + swatchHeight + 35);
+    });
+    
+    // Add title
+    ctx.fillStyle = '#ff6b6b';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Extracted Color Palette', canvas.width/2, 30);
+    
+    return canvas.toDataURL('image/png');
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -781,6 +918,199 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
     }
   };
 
+  // Save functionality
+  const handleSaveProject = async () => {
+    setIsSaving(true);
+    try {
+      // Check if there's any data to save
+      const hasData = centerBoxes.some(box => box.value) || 
+                     Object.values(styleTransferPrompts).some(prompt => prompt) ||
+                     Object.values(colorExtractorPrompts).some(prompt => prompt);
+      
+      console.log('Save Debug - Has Data:', hasData);
+      console.log('Save Debug - Center Boxes:', centerBoxes);
+      console.log('Save Debug - Style Transfer Prompts:', styleTransferPrompts);
+      console.log('Save Debug - Color Extractor Prompts:', colorExtractorPrompts);
+      
+      if (!hasData) {
+        alert('No data to save. Please add some content first.');
+        setIsSaving(false);
+        return;
+      }
+
+      // Create project data with size optimization
+      const projectData = {
+        id: Date.now().toString(),
+        templateType,
+        timestamp: new Date().toISOString(),
+        boxes: centerBoxes.map(box => ({
+          id: box.id,
+          type: box.type,
+          title: box.title,
+          value: box.value
+        })),
+        prompts: {
+          styleTransfer: styleTransferPrompts,
+          colorExtractor: colorExtractorPrompts
+        }
+      };
+
+      // Check data size before saving
+      const dataString = JSON.stringify(projectData);
+      const dataSize = new Blob([dataString]).size;
+      const maxSize = 5 * 1024 * 1024; // 5MB limit
+      
+      if (dataSize > maxSize) {
+        alert('Project data is too large to save. Please reduce the number of images or their size.');
+        return;
+      }
+
+      // Get existing projects
+      let existingProjects = [];
+      try {
+        const existingData = localStorage.getItem('bulbitProjects');
+        console.log('Save Debug - Existing localStorage data:', existingData);
+        existingProjects = JSON.parse(existingData || '[]');
+        console.log('Save Debug - Parsed existing projects:', existingProjects);
+      } catch (error) {
+        console.warn('Failed to parse existing projects, starting fresh');
+        existingProjects = [];
+      }
+
+      // Limit to last 20 projects to prevent localStorage overflow
+      const updatedProjects = [...existingProjects, projectData].slice(-20);
+      
+      // Save to localStorage with error handling
+      try {
+        const dataToSave = JSON.stringify(updatedProjects);
+        console.log('Save Debug - Data to save size:', new Blob([dataToSave]).size);
+        console.log('Save Debug - Data to save preview:', dataToSave.substring(0, 200) + '...');
+        
+        localStorage.setItem('bulbitProjects', dataToSave);
+        setSavedProjects(updatedProjects);
+        console.log('Project saved successfully:', projectData);
+        alert('Project saved successfully!');
+      } catch (storageError) {
+        console.error('localStorage error:', storageError);
+        if (storageError instanceof Error && storageError.name === 'QuotaExceededError') {
+          alert('Storage limit reached. Please delete some old projects first.');
+        } else {
+          alert('Failed to save to storage. Please try again.');
+        }
+        throw storageError;
+      }
+      
+    } catch (error) {
+      console.error('Failed to save project:', error);
+      if (error instanceof Error) {
+        alert(`Failed to save project: ${error.message}`);
+      } else {
+        alert('Failed to save project. Please try again.');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLoadProjects = () => {
+    try {
+      const savedProjectsData = localStorage.getItem('bulbitProjects');
+      if (!savedProjectsData) {
+        setSavedProjects([]);
+        return;
+      }
+      
+      const savedProjects = JSON.parse(savedProjectsData);
+      setSavedProjects(savedProjects);
+      console.log('Loaded projects:', savedProjects);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      // Clear corrupted data
+      try {
+        localStorage.removeItem('bulbitProjects');
+        console.log('Cleared corrupted project data');
+      } catch (clearError) {
+        console.error('Failed to clear corrupted data:', clearError);
+      }
+      setSavedProjects([]);
+    }
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    try {
+      const existingProjects = JSON.parse(localStorage.getItem('bulbitProjects') || '[]');
+      const updatedProjects = existingProjects.filter((project: any) => project.id !== projectId);
+      localStorage.setItem('bulbitProjects', JSON.stringify(updatedProjects));
+      setSavedProjects(updatedProjects);
+      console.log('Project deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      alert('Failed to delete project. Please try again.');
+    }
+  };
+
+  const handleClearAllProjects = () => {
+    if (confirm('Are you sure you want to delete all saved projects? This cannot be undone.')) {
+      try {
+        localStorage.removeItem('bulbitProjects');
+        setSavedProjects([]);
+        console.log('All projects cleared successfully');
+        alert('All projects cleared successfully');
+      } catch (error) {
+        console.error('Failed to clear projects:', error);
+        alert('Failed to clear projects. Please try again.');
+      }
+    }
+  };
+
+  const handleTestSave = () => {
+    try {
+      const testData = {
+        id: 'test-' + Date.now(),
+        templateType: 'Test',
+        timestamp: new Date().toISOString(),
+        boxes: [],
+        prompts: {}
+      };
+      
+      const existingProjects = JSON.parse(localStorage.getItem('bulbitProjects') || '[]');
+      const updatedProjects = [...existingProjects, testData];
+      localStorage.setItem('bulbitProjects', JSON.stringify(updatedProjects));
+      
+      console.log('Test save successful');
+      alert('Test save successful! Check console for details.');
+      
+      // Reload projects
+      handleLoadProjects();
+    } catch (error) {
+      console.error('Test save failed:', error);
+      alert('Test save failed: ' + error);
+    }
+  };
+
+  // Load projects on component mount
+  useEffect(() => {
+    handleLoadProjects();
+  }, []);
+
+  // Prevent global keyboard shortcuts when CenterCanvas is open
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isVisible && (event.ctrlKey || event.metaKey)) {
+        if (event.key === 's') {
+          event.preventDefault();
+          event.stopPropagation();
+          handleSaveProject();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [isVisible]);
+
   if (!isVisible || !templateType) {
     return null;
   }
@@ -789,12 +1119,43 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
     <div className={styles.centerCanvas}>
       <div className={styles.header}>
         <h2 className={styles.title}>{templateType}</h2>
-        <button className={styles.closeButton} onClick={onClose}>
-          <FiX />
-        </button>
+        <div className={styles.headerActions}>
+          <button 
+            className={`${styles.saveButton} ${isSaving ? styles.saving : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSaveProject();
+            }}
+            disabled={isSaving}
+            title="Save Project"
+          >
+            {isSaving ? (
+              <>
+                <div className={styles.spinner}></div>
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <FiSave className={styles.saveIcon} />
+                <span>Save</span>
+              </>
+            )}
+          </button>
+          <button 
+            className={styles.testButton}
+            onClick={handleTestSave}
+            title="Test Save"
+          >
+            Test
+          </button>
+          <button className={styles.closeButton} onClick={onClose}>
+            <FiX />
+          </button>
+        </div>
       </div>
 
-      <div className={`${styles.boxesContainer} ${templateType === 'Style Transfer' ? styles.styleTransfer : ''} ${templateType === 'Asset Generator' ? styles.assetGenerator : ''} ${templateType === 'Moodboard Generator' ? styles.moodboardGenerator : ''} ${templateType === 'Color Extractor' ? styles.colorExtractor : ''} ${templateType === 'Sample Generation' ? styles.sampleGeneration : ''}`}>
+      <div className={`${styles.boxesContainer} ${templateType === 'Style Transfer' ? styles.styleTransfer : ''} ${templateType === 'Asset Generator' ? styles.assetGenerator : ''} ${templateType === 'Moodboard Generator' ? styles.moodboardGenerator : ''} ${templateType === 'Color Extractor' ? styles.colorExtractor : ''}`}>
         {centerBoxes.map((box) => {
           let boxClass = `${styles.centerBox} ${box.isActive ? styles.active : ''} ${box.type === 'output' ? styles.output : ''}`;
           if (templateType === 'Style Transfer') {
@@ -811,6 +1172,7 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
             else if (box.id === 'final-2') boxClass += ` ${styles.rightBox}`;
             else if (box.id === 'final-3') boxClass += ` ${styles.rightBox}`;
           }
+
           
           return (
             <div
@@ -883,6 +1245,58 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
                        </button>
                      )}
                    </div>
+                   
+                   {/* Add prompt field inside Style Reference card */}
+                   {templateType === 'Style Transfer' && box.id === 'style-reference' && (
+                     <div className={styles.promptContainer}>
+                       <textarea
+                         value={styleTransferPrompts.stylePrompt || ''}
+                         onChange={(e) => setStyleTransferPrompts(prev => ({ ...prev, stylePrompt: e.target.value }))}
+                         placeholder="Describe the style transfer effect you want..."
+                         className={styles.promptInput}
+                         rows={2}
+                       />
+                     </div>
+                   )}
+                   
+                   {/* Add prompt field inside Color Reference card */}
+                   {templateType === 'Color Extractor' && box.id === 'color-reference' && (
+                     <div className={styles.promptContainer}>
+                       <textarea
+                         value={colorExtractorPrompts.colorPrompt || ''}
+                         onChange={(e) => setColorExtractorPrompts(prev => ({ ...prev, colorPrompt: e.target.value }))}
+                         placeholder="Describe the color extraction effect you want..."
+                         className={styles.promptInput}
+                         rows={2}
+                       />
+                     </div>
+                   )}
+                   
+                   {/* Add prompt field inside Object Reference card for Style Transfer */}
+                   {templateType === 'Style Transfer' && box.id === 'content-image' && (
+                     <div className={styles.promptContainer}>
+                       <textarea
+                         value={styleTransferPrompts.contentPrompt || ''}
+                         onChange={(e) => setStyleTransferPrompts(prev => ({ ...prev, contentPrompt: e.target.value }))}
+                         placeholder="Describe the object you want to style..."
+                         className={styles.promptInput}
+                         rows={2}
+                       />
+                     </div>
+                   )}
+                   
+                   {/* Add prompt field inside Object Reference card for Color Extractor */}
+                   {templateType === 'Color Extractor' && box.id === 'object-reference' && (
+                     <div className={styles.promptContainer}>
+                       <textarea
+                         value={colorExtractorPrompts.objectPrompt || ''}
+                         onChange={(e) => setColorExtractorPrompts(prev => ({ ...prev, objectPrompt: e.target.value }))}
+                         placeholder="Describe the object you want to extract colors from..."
+                         className={styles.promptInput}
+                         rows={2}
+                       />
+                     </div>
+                   )}
                  </>
                )}
 
@@ -907,7 +1321,13 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
                      )}
                      <textarea
                        value={box.value && !box.value.startsWith('data:image') ? box.value : ''}
-                       onChange={(e) => handleBoxValueChange(box.id, e.target.value)}
+                       onChange={(e) => {
+                         handleBoxValueChange(box.id, e.target.value);
+                         // Auto-trigger generation for Basic Generation when text is entered
+                         if (templateType === 'Text-to-Image' && box.id === 'text-prompt' && e.target.value.trim()) {
+                           setTimeout(() => handleGenerate(), 1000);
+                         }
+                       }}
                        placeholder={box.placeholder}
                        className={styles.promptInput}
                        rows={3}
@@ -932,7 +1352,18 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
               {box.type === 'output' && (
                 <div className={styles.outputArea}>
                   {box.value ? (
-                    <img src={box.value} alt="Generated" className={styles.outputImage} />
+                    <div className={styles.outputPreviewContainer}>
+                      <img 
+                        src={box.value} 
+                        alt="Generated" 
+                        className={styles.outputImagePreview} 
+                        onClick={() => handleImageClick(box.value)}
+                      />
+                      <div className={styles.previewOverlay}>
+                        <FiEye className={styles.previewIcon} />
+                        <span>Click to view full image</span>
+                      </div>
+                    </div>
                   ) : (
                     <div className={styles.outputPlaceholder}>
                       <FiImage className={styles.outputIcon} />
@@ -965,6 +1396,69 @@ const CenterCanvas: React.FC<CenterCanvasProps> = ({ isVisible, templateType, on
         );
         })}
       </div>
+      
+      {/* Saved Projects Section */}
+      {savedProjects.length > 0 && (
+        <div className={styles.savedProjectsSection}>
+          <div className={styles.savedProjectsHeader}>
+            <h3 className={styles.savedProjectsTitle}>Saved Projects</h3>
+            <button 
+              className={styles.clearAllButton}
+              onClick={handleClearAllProjects}
+              title="Clear All Projects"
+            >
+              Clear All
+            </button>
+          </div>
+          <div className={styles.savedProjectsList}>
+            {savedProjects
+              .filter(project => project.templateType === templateType)
+              .slice(-5) // Show last 5 projects
+              .map((project) => (
+                <div key={project.id} className={styles.savedProjectItem}>
+                  <div className={styles.projectInfo}>
+                    <span className={styles.projectTemplate}>{project.templateType}</span>
+                    <span className={styles.projectDate}>
+                      {new Date(project.timestamp).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className={styles.projectActions}>
+                    <button 
+                      className={styles.loadProjectButton}
+                      onClick={() => {
+                        // Load project data back to boxes
+                        project.boxes.forEach((box: any) => {
+                          const targetBox = centerBoxes.find(b => b.id === box.id);
+                          if (targetBox) {
+                            handleBoxValueChange(box.id, box.value);
+                          }
+                        });
+                        
+                        // Load prompts
+                        if (project.prompts?.styleTransfer) {
+                          setStyleTransferPrompts(project.prompts.styleTransfer);
+                        }
+                        if (project.prompts?.colorExtractor) {
+                          setColorExtractorPrompts(project.prompts.colorExtractor);
+                        }
+                      }}
+                      title="Load Project"
+                    >
+                      Load
+                    </button>
+                    <button 
+                      className={styles.deleteProjectButton}
+                      onClick={() => handleDeleteProject(project.id)}
+                      title="Delete Project"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

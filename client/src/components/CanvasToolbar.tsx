@@ -15,7 +15,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onZoomOut,
   onZoomFit
 }) => {
-  const { undo, redo, canUndo, canRedo, startAutoSave, stopAutoSave, lastAutoSave } = useWorkflowStore();
+  const { undo, redo, canUndo, canRedo, startAutoSave, stopAutoSave, lastAutoSave, centerCanvasOpen } = useWorkflowStore();
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveDialogMode, setSaveDialogMode] = useState<'save' | 'load' | 'export'>('save');
   const [showSaveStatus, setShowSaveStatus] = useState(false);
@@ -51,6 +51,11 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   // Add keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger global shortcuts when CenterCanvas is open
+      if (centerCanvasOpen) {
+        return;
+      }
+      
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
           case 's':
@@ -73,7 +78,7 @@ const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [centerCanvasOpen]);
 
   return (
     <>

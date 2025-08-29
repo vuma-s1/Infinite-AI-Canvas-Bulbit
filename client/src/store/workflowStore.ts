@@ -22,8 +22,9 @@ interface WorkflowState {
   maxHistorySize: number;
   savedProjects: SavedProject[];
   currentProjectId: string | null;
-  autoSaveInterval: number | null;
+  autoSaveInterval: any;
   lastAutoSave: number;
+  centerCanvasOpen: boolean;
   
   // Existing methods
   setNodes: (nodes: Node[]) => void;
@@ -49,6 +50,8 @@ interface WorkflowState {
   stopAutoSave: () => void;
   getProjectThumbnail: () => string;
   duplicateProject: (projectId: string) => string;
+  setCenterCanvasOpen: (open: boolean) => void;
+  triggerAutoSave: () => void;
 }
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
@@ -61,6 +64,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   currentProjectId: null,
   autoSaveInterval: null,
   lastAutoSave: Date.now(),
+  centerCanvasOpen: false,
 
   setNodes: (nodes: Node[]) => {
     set({ nodes });
@@ -321,6 +325,8 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
     return newProjectId;
   },
+
+  setCenterCanvasOpen: (open: boolean) => set({ centerCanvasOpen: open }),
 
   triggerAutoSave: () => {
     const { lastAutoSave } = get();

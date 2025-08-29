@@ -133,21 +133,7 @@ const GenerationSidebar: React.FC<GenerationSidebarProps> = ({
       ];
     }
     
-    // Sample Generation
-    if (templateType === 'Sample Generation') {
-      const allSamples = [
-        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop'
-      ];
-      // Shuffle and return 4 random images
-      return allSamples.sort(() => Math.random() - 0.5).slice(0, 4);
-    }
+
     
     // Default fallback
     return [

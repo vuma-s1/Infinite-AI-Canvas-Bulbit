@@ -128,111 +128,7 @@ const BulbitCanvas: React.FC<BulbitCanvasProps> = ({ activeWorkflow }) => {
     // Handle generation logic here
   };
 
-  // Empty state component
-  const EmptyState = () => (
-    <div style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      textAlign: 'center',
-      zIndex: 10,
-      pointerEvents: 'auto'
-    }}>
-      <div style={{
-        background: 'rgba(26, 26, 26, 0.9)',
-        border: '2px solid rgba(255, 107, 107, 0.3)',
-        borderRadius: '20px',
-        padding: '40px',
-        backdropFilter: 'blur(10px)',
-        maxWidth: '700px',
-        width: '90%'
-      }}>
-        <div style={{
-          fontSize: '48px',
-          color: '#ff6b6b',
-          marginBottom: '20px'
-        }}>
-          <FiImage />
-        </div>
-        <h3 style={{
-          color: '#ffffff',
-          fontSize: '24px',
-          fontWeight: '600',
-          margin: '0 0 12px 0'
-        }}>
-          Welcome to Bulbit AI Canvas
-        </h3>
-        <p style={{
-          color: 'rgba(255, 255, 255, 0.7)',
-          fontSize: '16px',
-          margin: '0 0 24px 0',
-          lineHeight: '1.5'
-        }}>
-          Start building your AI workflow by dragging nodes from the sidebar
-        </p>
-        <button
-          onClick={() => setHasStartedEditing(true)}
-          style={{
-            background: 'linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '16px 32px',
-            color: '#ffffff',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginBottom: '24px',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(255, 107, 107, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 107, 107, 0.3)';
-          }}
-        >
-          Start Editing
-        </button>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '16px',
-          marginTop: '16px'
-        }}>
-          {[
-            { icon: <FiUpload />, label: 'Image Upload' },
-            { icon: <FiMessageSquare />, label: 'Text Prompt' },
-            { icon: <MdPalette />, label: 'Style Extractor' },
-            { icon: <FiDroplet />, label: 'Color Extractor' },
-            { icon: <FiPackage />, label: 'Asset Generator' },
-            { icon: <FiClipboard />, label: 'Moodboard' }
-          ].map((item, index) => (
-            <div key={index} style={{
-              background: 'rgba(255, 107, 107, 0.1)',
-              border: '1px solid rgba(255, 107, 107, 0.3)',
-              borderRadius: '8px',
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '6px',
-              color: '#ffffff',
-              fontSize: '13px'
-            }}>
-              <div style={{ fontSize: '18px', color: '#ff6b6b' }}>
-                {item.icon}
-              </div>
-              <span>{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+
 
   return (
     <div className="canvas-container" ref={reactFlowWrapper} style={{ 
@@ -311,7 +207,6 @@ const BulbitCanvas: React.FC<BulbitCanvasProps> = ({ activeWorkflow }) => {
             nodeColor="#ff6b6b"
           />
         </ReactFlow>
-        {nodes.length === 0 && !hasStartedEditing && <EmptyState />}
       </ReactFlowProvider>
       )}
     </div>
